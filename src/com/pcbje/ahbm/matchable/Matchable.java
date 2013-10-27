@@ -88,6 +88,10 @@ public class Matchable {
 
     public String getReferenceSetName() {
         if (referenceSet != null) {
+            if (referenceSet.getName().startsWith("open_case.sdbf")) {
+                return "Open case";
+            }
+            
             return referenceSet.getName();
         }
 
