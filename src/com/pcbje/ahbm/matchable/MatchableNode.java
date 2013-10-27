@@ -328,7 +328,7 @@ public class MatchableNode extends AbstractNode implements PropertyChangeListene
 
         @Override
         protected int mode() {
-            return CookieAction.MODE_EXACTLY_ONE;
+            return CookieAction.MODE_ALL;
         }
 
         @Override
@@ -338,15 +338,18 @@ public class MatchableNode extends AbstractNode implements PropertyChangeListene
 
         @Override
         protected void performAction(Node[] nodes) {
-            Matchable source = nodes[0].getLookup().lookup(Matchable.class);
-
-            int res = JOptionPane.showConfirmDialog(null, "Remove the findings for this file?");
+            int res = JOptionPane.showConfirmDialog(null, "Remove the selected findings?");
 
             if (res != JOptionPane.YES_OPTION) {
                 return;
             }
 
-            source.getParent().removeChild(source);
+            for (Node node : nodes) {
+                Matchable source = node.getLookup().lookup(Matchable.class);
+
+
+                source.getParent().removeChild(source);
+            }
         }
 
         @Override

@@ -24,6 +24,7 @@ import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeList;
 import it.uniroma1.dis.wsngroup.gexf4j.core.data.AttributeType;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.GexfImpl;
 import it.uniroma1.dis.wsngroup.gexf4j.core.impl.data.AttributeListImpl;
+import it.uniroma1.dis.wsngroup.gexf4j.core.impl.writer.GexfEntityWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class GexfExport {
     private Graph graph;
     private Set<String> cache;
 
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public String export(Matchable root) throws IOException {
         Gexf gexf = new GexfImpl();
 
@@ -82,6 +84,8 @@ public class GexfExport {
         try {
             XMLStreamWriter streamWriter = factory.createXMLStreamWriter(out);
             streamWriter.writeStartDocument("UTF-8", "1.0");
+
+            new GexfEntityWriter(streamWriter, gexf);
 
             streamWriter.writeEndDocument();
 
