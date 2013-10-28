@@ -3,7 +3,7 @@ autopsy-ahbm
 
 Autopsy 3 module for Approximate Hash Based Matching (AHBM) using sdhash
 
-## Installation (Windows)
+### Installation (Windows)
 
 * Download sdhash 3.3 pre-built binary for Windows from http://sdhash.org
 * Unzip and place the files in a conveniant directory
