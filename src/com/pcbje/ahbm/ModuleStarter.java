@@ -22,7 +22,7 @@ import org.sleuthkit.autopsy.ingest.IngestModuleAbstractFile;
  *
  * @author pcbje
  */
-@OnStart
+//@OnStart
 public class ModuleStarter implements Runnable {
 
     @Override
