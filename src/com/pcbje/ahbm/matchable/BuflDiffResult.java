@@ -13,6 +13,7 @@
  */
 package com.pcbje.ahbm.matchable;
 
+import com.pcbje.ahbm.AhbmIngestModule;
 import com.pcbje.ahbm.CaseWrapper;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -35,7 +36,7 @@ public class BuflDiffResult extends javax.swing.JFrame {
 
         setTitle("BuflDiff .1");
 
-        CaseWrapper caseWrapper = new CaseWrapper();
+        CaseWrapper caseWrapper = new CaseWrapper(AhbmIngestModule.getSettings());
 
         File file1 = File.createTempFile(content1.getName(), "bufl");
         File file2 = File.createTempFile(content2.getName(), "bufl");

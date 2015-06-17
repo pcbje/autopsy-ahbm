@@ -13,6 +13,7 @@
  */
 package com.pcbje.ahbm.matchable;
 
+import com.pcbje.ahbm.AhbmIngestModule;
 import com.pcbje.ahbm.SdbfSet;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -179,7 +180,7 @@ public final class MatchableViewer extends TopComponent implements ExplorerManag
             @Override
             public void run() {
                 try {
-                    new SdbfSet().searchMatching(matchables);
+                    new SdbfSet(AhbmIngestModule.getSettings()).searchMatching(matchables);
 
                     for (Node node : mgr.getSelectedNodes()) {
                         view.expandNode(node);

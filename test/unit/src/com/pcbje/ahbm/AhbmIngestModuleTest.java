@@ -21,8 +21,6 @@ import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
-import org.sleuthkit.autopsy.ingest.IngestModuleInit;
-import org.sleuthkit.autopsy.ingest.PipelineContext;
 import org.sleuthkit.datamodel.AbstractFile;
 import org.sleuthkit.datamodel.Content;
 import org.sleuthkit.datamodel.TskCoreException;
@@ -36,17 +34,15 @@ public class AhbmIngestModuleTest {
 
     private String dummySdbf = "sdbf-dd:03:15:dummy.txt.0000M:3263:sha1:256:5:7ff:192:1:16384:37:AAKAJAAEBQIACCAAAAAAEIGEABAgIkAARwDBiAAACAAAAcAAKEQKABEACBEhAAAkTCABlAADsAQIAAAJAICAWWACBSAAAQAAABBQIIKAAAIAAMCCEAAFAEYACMABBABAQACAAAQEEACQCEQAIBCQAESgAEABEBBAQgAAAgABQlNBkACQBoAEAEAAQAlAAABIgQAIFIAEARQAACAjQAAAAEAADAAAUAgAABKAACARAoCQAAAQAQAAAQBkAAEAQUIEAAAAIIAAAAgAgQRAEiIgAgAEACBkgEASWEgCBCAAAEACAIBCEAIAAgHgAASAAgAAxABGMABAQCBAQAUCJgEEAA==\n";
     private AhbmIngestModule ahbmIngestModule;
-    private PipelineContext pipelineContext;
     private Sdhash sdhash;
     private SdbfSet sdbfSet;
     private MatchableHandler matchHandler;
-    private Properties properties;
 
     @Before
     public void setup() throws IOException, TskCoreException {
-        ahbmIngestModule = new AhbmIngestModule();
-        pipelineContext = mock(PipelineContext.class);
-
+        AhbmJobSettings settings = new AhbmJobSettings();
+        ahbmIngestModule = new AhbmIngestModule(settings);
+       
         sdhash = mock(Sdhash.class);
         when(sdhash.generateSdbf(any(Matchable.class))).thenReturn(dummySdbf);
         ahbmIngestModule.setSdhash(sdhash);
@@ -56,12 +52,6 @@ public class AhbmIngestModuleTest {
 
         matchHandler = mock(MatchableHandler.class);
         ahbmIngestModule.setMatchHandler(matchHandler);
-
-        properties = new Properties();
-        properties.setProperty("ahbm.skip.known.good", "true");
-        properties.setProperty("ahbm.against.existing", "false");
-        properties.setProperty("ahbm.against.existing", "false");
-        properties.setProperty("ahbm.max.file.size", "0");
     }
 
     @Test
@@ -69,7 +59,8 @@ public class AhbmIngestModuleTest {
         AbstractFile abstractFile = mock(AbstractFile.class);
         when(abstractFile.isFile()).thenReturn(Boolean.TRUE);
 
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(sdhash).generateSdbf(any(Matchable.class));
     }
@@ -79,7 +70,8 @@ public class AhbmIngestModuleTest {
         AbstractFile abstractFile = mock(AbstractFile.class);
         when(abstractFile.isFile()).thenReturn(Boolean.TRUE);
 
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(sdbfSet).addSdbfToOpenCase(any(String.class));
     }
@@ -89,7 +81,8 @@ public class AhbmIngestModuleTest {
         AbstractFile abstractFile = mock(AbstractFile.class);
         when(abstractFile.isFile()).thenReturn(Boolean.TRUE);
 
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(sdbfSet).streamMatch(any(Content.class), any(String.class));
     }
@@ -99,28 +92,22 @@ public class AhbmIngestModuleTest {
         AbstractFile abstractFile = mock(AbstractFile.class);
         when(abstractFile.isFile()).thenReturn(Boolean.TRUE);
 
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(matchHandler).handleStreamMatches(any(Collection.class));
     }
 
     @Test
     public void testOpenCaseSdbfFileIsClosedOnComplete() throws IOException {
-        ahbmIngestModule.complete();
+        ahbmIngestModule.shutDown();
         verify(sdbfSet).close();
     }
 
     @Test
     public void testOpenCaseSdbfFileIsClosedOnStop() throws IOException {
-        ahbmIngestModule.stop();
+        ahbmIngestModule.shutDown();
         verify(sdbfSet).close();
-    }
-
-    @Test(expected = ExceptionInInitializerError.class)
-    public void testStreamSetLoadedOnInit() throws IOException {
-        IngestModuleInit ingestModuleInit = mock(IngestModuleInit.class);
-
-        ahbmIngestModule.init(ingestModuleInit);
     }
 
     @Test
@@ -132,12 +119,12 @@ public class AhbmIngestModuleTest {
 
         CaseWrapper caseWrapper = mock(CaseWrapper.class);
 
-        when(caseWrapper.getProperties()).thenReturn(properties);
+        when(caseWrapper.getSettings()).thenReturn(new AhbmJobSettings(true, true, 0, 1024));
 
         ahbmIngestModule.setCaseWrapper(caseWrapper);
 
-        ahbmIngestModule.init(null);
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(sdhash, never()).generateSdbf(any(Matchable.class));
     }
@@ -146,19 +133,17 @@ public class AhbmIngestModuleTest {
     public void testUnknownIsNotSkippedWhenConfigIsTrue() throws IOException, TskCoreException {
         AbstractFile abstractFile = mock(AbstractFile.class);
 
-        when(abstractFile.getKnown()).thenReturn(TskData.FileKnown.UKNOWN);
+        when(abstractFile.getKnown()).thenReturn(TskData.FileKnown.UNKNOWN);
         when(abstractFile.isFile()).thenReturn(Boolean.TRUE);
 
         CaseWrapper caseWrapper = mock(CaseWrapper.class);
 
-        properties.setProperty("ahbm.skip.known.good", "true");
-        properties.setProperty("ahbm.against.existing", "false");
-        when(caseWrapper.getProperties()).thenReturn(properties);
+        when(caseWrapper.getSettings()).thenReturn(new AhbmJobSettings(false, true, 0, 1024));
 
         ahbmIngestModule.setCaseWrapper(caseWrapper);
 
-        ahbmIngestModule.init(null);
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(sdhash).generateSdbf(any(Matchable.class));
     }
@@ -170,16 +155,10 @@ public class AhbmIngestModuleTest {
         when(abstractFile.getKnown()).thenReturn(TskData.FileKnown.KNOWN);
         when(abstractFile.isFile()).thenReturn(Boolean.TRUE);
 
-        CaseWrapper caseWrapper = mock(CaseWrapper.class);
+        ahbmIngestModule.setSettings(new AhbmJobSettings(false, false, 0, 1024));
 
-        properties.setProperty("ahbm.skip.known.good", "false");
-        properties.setProperty("ahbm.against.existing", "false");
-        when(caseWrapper.getProperties()).thenReturn(properties);
-
-        ahbmIngestModule.setCaseWrapper(caseWrapper);
-
-        ahbmIngestModule.init(null);
-        ahbmIngestModule.process(pipelineContext, abstractFile);
+        ahbmIngestModule.startUp(null);
+        ahbmIngestModule.process(abstractFile);
 
         verify(sdhash).generateSdbf(any(Matchable.class));
     }

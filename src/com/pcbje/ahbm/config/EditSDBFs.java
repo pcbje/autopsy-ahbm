@@ -13,6 +13,7 @@
  */
 package com.pcbje.ahbm.config;
 
+import com.pcbje.ahbm.AhbmIngestModule;
 import com.pcbje.ahbm.CaseWrapper;
 import com.pcbje.ahbm.SdbfSet;
 import com.pcbje.ahbm.Sdhash;
@@ -107,8 +108,8 @@ public class EditSDBFs extends javax.swing.JFrame implements ActionListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        CaseWrapper caseWrapper = new CaseWrapper();
-        Sdhash sdhash = new Sdhash();
+        CaseWrapper caseWrapper = new CaseWrapper(AhbmIngestModule.getSettings());
+        Sdhash sdhash = new Sdhash(AhbmIngestModule.getSettings());
 
         File streamsets = caseWrapper.getFileInModuleDir(SdbfSet.DEFAULT_STREAM_SET);
 
@@ -146,7 +147,7 @@ public class EditSDBFs extends javax.swing.JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         EditSDBFs editSdbfs = new EditSDBFs();
 
-        CaseWrapper caseWrapper = new CaseWrapper();
+        CaseWrapper caseWrapper = new CaseWrapper(AhbmIngestModule.getSettings());
 
         File streamsets = caseWrapper.getFileInModuleDir(SdbfSet.DEFAULT_STREAM_SET);
 

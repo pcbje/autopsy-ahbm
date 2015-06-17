@@ -13,16 +13,13 @@
  */
 package com.pcbje.ahbm;
 
-import com.pcbje.ahbm.config.AHBMConfig;
 import com.pcbje.ahbm.matchable.Matchable;
 import com.pcbje.ahbm.matchable.MatchableHandler;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Properties;
 import org.openide.util.Exceptions;
-import org.sleuthkit.autopsy.ingest.IngestModuleAbstractFile;
-import org.sleuthkit.autopsy.ingest.IngestModuleInit;
-import org.sleuthkit.autopsy.ingest.PipelineContext;
+import org.sleuthkit.autopsy.ingest.FileIngestModule;
+import org.sleuthkit.autopsy.ingest.IngestJobContext;
 import org.sleuthkit.datamodel.AbstractFile;
 import org.sleuthkit.datamodel.TskData;
 
@@ -30,31 +27,29 @@ import org.sleuthkit.datamodel.TskData;
  *
  * @author pcbje
  */
-public class AhbmIngestModule extends IngestModuleAbstractFile {
+public class AhbmIngestModule implements FileIngestModule {
 
-    private static AhbmIngestModule def;
     private Sdhash sdhash;
     private SdbfSet sdbfSet;
     private MatchableHandler matchHandler;
     private CaseWrapper caseWrapper;
-    private AHBMConfig config;
-    private boolean skipKnownGood;
-    private boolean againstExisting;
-
-    public static IngestModuleAbstractFile getDefault() {
-        if (def == null) {
-            def = new AhbmIngestModule();
-        }
-        return def;
+    private static AhbmJobSettings settings;
+    
+    public static AhbmJobSettings getSettings() {
+        return settings;
     }
-    private long maxFileSize;
 
-    public AhbmIngestModule() {
-        caseWrapper = new CaseWrapper();
+    public AhbmIngestModule(AhbmJobSettings settings) {
+        caseWrapper = new CaseWrapper(settings);
+        this.settings = settings;
+    }
+    
+    public void setSettings(AhbmJobSettings ahbmJobSettings) {
+        this.settings = ahbmJobSettings;
     }
 
     @Override
-    public ProcessResult process(PipelineContext<IngestModuleAbstractFile> pc, AbstractFile af) {
+    public ProcessResult process(AbstractFile af) {
         if (!af.isFile() || skipFile(af)) {
             return ProcessResult.OK;
         }
@@ -74,89 +69,39 @@ public class AhbmIngestModule extends IngestModuleAbstractFile {
     }
 
     private boolean skipFile(AbstractFile af) {
-        return (skipKnownGood && af.getKnown() == TskData.FileKnown.KNOWN)
-                || (maxFileSize > 0 && af.getSize() > maxFileSize);
+        return (settings.isSkipKnownGood() && af.getKnown() == TskData.FileKnown.KNOWN)
+                || (settings.getMaxFileSizeInBytes() > 0 && af.getSize() > settings.getMaxFileSizeInBytes());
     }
 
     @Override
-    public void init(IngestModuleInit imi) {
+    public void startUp(IngestJobContext ijc) {
         if (sdbfSet == null) {
-            sdbfSet = new SdbfSet();
+            sdbfSet = new SdbfSet(settings);
         }
 
         if (sdhash == null) {
-            sdhash = new Sdhash();
+            sdhash = new Sdhash(settings);
         }
 
         if (matchHandler == null) {
             matchHandler = new MatchableHandler();
         }
 
-        Properties properties = caseWrapper.getProperties();
-
-        skipKnownGood = properties.getProperty("ahbm.skip.known.good").equals("true");
-        againstExisting = properties.getProperty("ahbm.against.existing").equals("true");
-        maxFileSize = Long.parseLong(properties.getProperty("ahbm.max.file.size")) * (1024 * 1024);
-
+       
         try {
-            sdbfSet.loadDefaultStreamSets(againstExisting);
+            sdbfSet.loadDefaultStreamSets(caseWrapper.getSettings().isAgainstExisting());
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
     }
 
     @Override
-    public void complete() {
+    public void shutDown() {
         try {
             sdbfSet.close();
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-    }
-
-    @Override
-    public void stop() {
-        try {
-            sdbfSet.close();
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
-    @Override
-    public String getName() {
-        return "AHBM";
-    }
-
-    @Override
-    public String getVersion() {
-        return "0.1";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Module for approximate hash based matching using sdhash";
-    }
-
-    @Override
-    public boolean hasBackgroundJobsRunning() {
-        return false;
-    }
-
-    @Override
-    public boolean hasSimpleConfiguration() {
-        return true;
-    }
-
-    @Override
-    public javax.swing.JPanel getSimpleConfiguration(String context) {
-        config = new AHBMConfig(caseWrapper.getProperties());
-        return config;
-    }
-
-    @Override
-    public void saveSimpleConfiguration() {
-        caseWrapper.storeProperties(config.getProperties());
     }
 
     public void setSdhash(Sdhash sdhash) {

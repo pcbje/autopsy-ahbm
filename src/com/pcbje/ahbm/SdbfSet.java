@@ -41,18 +41,16 @@ public class SdbfSet {
     public static final String DEFAULT_OPEN_CASE_SET = "open_case.sdbf";
     public static final String DEFAULT_STREAM_SET = "streamset.txt";
     private static CaseWrapper caseWrapper;
-    private File openCaseSet;
-    private BufferedWriter openCaseSdbfWriter;
+    private static File openCaseSet;
+    private static BufferedWriter openCaseSdbfWriter;
     private List<File> streamSets;
     private Sdhash sdhash;
 
-    static {
-        caseWrapper = new CaseWrapper();
-    }
     private File openCaseSdbfCopy;
 
-    public SdbfSet() {
-        sdhash = new Sdhash();
+    public SdbfSet(AhbmJobSettings settings) {
+        caseWrapper = new CaseWrapper(AhbmIngestModule.getSettings());
+        sdhash = new Sdhash(settings);
     }
 
     public static void setCaseWrapper(CaseWrapper _caseWrapper) {

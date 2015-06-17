@@ -34,12 +34,12 @@ import org.sleuthkit.datamodel.TskCoreException;
  */
 public class CaseWrapper {
 
-    private static final int AHBM_MAX_FILE_SIZE = 64;
-    private static final int READ_BUFFER_SIZE = 1024;
-    private static final String DEFAULT_SKIP_KNOWN_GOOD_FILES = "false";
-    private static final String DEFAULT_AGAINST_EXISTING = "false";
-    private volatile int messageID = 0;
+    private final AhbmJobSettings settings;
 
+    public CaseWrapper(AhbmJobSettings settings) {
+        this.settings = settings;
+    }
+    
     public File getFileInModuleDir(String pathRelativeToModule) {
         StringBuilder path = new StringBuilder();
         path.append(Case.getCurrentCase().getModulesOutputDirAbsPath());
@@ -60,36 +60,21 @@ public class CaseWrapper {
     }
 
     public void addOverizeWarning(Content content) throws TskCoreException {
-        IngestServices.getDefault().postMessage(IngestMessage.
-                createMessage(messageID++, IngestMessage.MessageType.WARNING, AhbmIngestModule.getDefault(),
+        IngestServices.getInstance().postMessage(IngestMessage.
+                createMessage(IngestMessage.MessageType.WARNING, AhbmIngestModule.class.getCanonicalName(),
                 String.format("File %s is too large for AHBM", content.getUniquePath())));
     }
 
     public void addMatchNotice(Matchable probe) throws TskCoreException {
         String name = probe.getContent().getName();
 
-        IngestServices.getDefault().postMessage(IngestMessage.
-                createMessage(messageID++, IngestMessage.MessageType.INFO, AhbmIngestModule.getDefault(),
+        IngestServices.getInstance().postMessage(IngestMessage.
+                createMessage(IngestMessage.MessageType.INFO, AhbmIngestModule.class.getCanonicalName(),
                 String.format("Found AHBM hits for %s", name)));
     }
 
-    public Properties getProperties() {
-        Properties props = new Properties();
-
-        props.setProperty("ahbm.max.file.size", Integer.toString(AHBM_MAX_FILE_SIZE));
-        props.setProperty("read.buffer.size", Integer.toString(READ_BUFFER_SIZE));
-        props.setProperty("ahbm.skip.known.good", DEFAULT_SKIP_KNOWN_GOOD_FILES);
-        props.setProperty("ahbm.against.existing", DEFAULT_AGAINST_EXISTING);
-
-        try {
-            props.load(new FileInputStream(getFileInModuleDir("ahbm.properties")));
-        } catch (FileNotFoundException ex) {
-            storeProperties(props);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
-        return props;
+    public AhbmJobSettings getSettings() {
+        return settings;
     }
 
     public void readFile(OutputStream baos, int bufferSize, Content content) {

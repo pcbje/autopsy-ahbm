@@ -45,7 +45,7 @@ public class SdbfSetTest {
 
     @Before
     public void setup() {
-        sdbfSet = new SdbfSet();
+        sdbfSet = new SdbfSet(new AhbmJobSettings());
         caseWrapper = mock(CaseWrapper.class);
         SdbfSet.setCaseWrapper(caseWrapper);
         Matchable.setCaseWrapper(caseWrapper);
@@ -168,7 +168,7 @@ public class SdbfSetTest {
         writer.close();
 
         when(caseWrapper.getFileInModuleDir(any(String.class))).thenReturn(streamSetFile);
-
+        sdbfSet.setCaseWrapper(caseWrapper);
         sdbfSet.loadStreamSets(streamSetFile.getName(), false);
 
         assertEquals(3, sdbfSet.getStreamSets().size());

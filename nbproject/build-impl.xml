@@ -4,10 +4,10 @@
 ***         EDIT ../build.xml INSTEAD         ***
 -->
 <project name="com.pcbje.ahbm-impl" basedir="..">
-    <fail message="Please build using Ant 1.7.1 or higher.">
+    <fail message="Please build using Ant 1.9.0 or higher.">
         <condition>
             <not>
-                <antversion atleast="1.7.1"/>
+                <antversion atleast="1.9.0"/>
             </not>
         </condition>
     </fail>

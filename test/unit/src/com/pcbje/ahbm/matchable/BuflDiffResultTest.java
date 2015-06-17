@@ -24,8 +24,8 @@ public class BuflDiffResultTest {
     @Test
     public void testSizeStr() {
         assertEquals("1020B", BuflDiffResult.getSizeStr(1020L));
-        assertEquals("16.3KB", BuflDiffResult.getSizeStr(1024*16L + 310));
-        assertEquals("1.7MB", BuflDiffResult.getSizeStr(1024*1024L + (1024 * 700)));
-        assertEquals("2.1GB", BuflDiffResult.getSizeStr(1024*1024*1024*2L + (1024*1024*140)));
+        assertEquals("16,3KB", BuflDiffResult.getSizeStr(1024*16L + 310));
+        assertEquals("1,7MB", BuflDiffResult.getSizeStr(1024*1024L + (1024 * 700)));
+        assertEquals("2,1GB", BuflDiffResult.getSizeStr(1024*1024*1024*2L + (1024*1024*140)));
     }
 }

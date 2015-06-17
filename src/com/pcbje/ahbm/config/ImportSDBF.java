@@ -37,7 +37,7 @@ public final class ImportSDBF implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        SdbfSet sdbfSet = new SdbfSet();
+        SdbfSet sdbfSet = new SdbfSet(null);
 
         final JFileChooser fc = new JFileChooser();
 

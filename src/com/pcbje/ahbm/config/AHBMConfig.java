@@ -13,44 +13,38 @@
  */
 package com.pcbje.ahbm.config;
 
+import com.pcbje.ahbm.AhbmJobSettings;
 import java.util.Properties;
+import org.sleuthkit.autopsy.ingest.IngestModuleIngestJobSettingsPanel;
 
 /**
  *
  * @author pcbje
  */
-public class AHBMConfig extends javax.swing.JPanel {
+public class AHBMConfig extends IngestModuleIngestJobSettingsPanel {
 
-    private final Properties properties;
-
-    public AHBMConfig(Properties properties) {
+    public AHBMConfig(AhbmJobSettings settings) {
         initComponents();
 
-        this.properties = properties;
-
-        againstExisting.setSelected(properties.getProperty("ahbm.against.existing").equals("true"));
-        skipKnownGood.setSelected(properties.getProperty("ahbm.skip.known.good").equals("true"));
-        maxFileSize.setText(properties.getProperty("ahbm.max.file.size"));
-        readBufferSize.setText(properties.getProperty("read.buffer.size"));
+        againstExisting.setSelected(settings.isAgainstExisting());
+        skipKnownGood.setSelected(settings.isSkipKnownGood());
+        maxFileSize.setText(Integer.toString(settings.getMaxFileSize()));
+        readBufferSize.setText(Integer.toString(settings.getReadBufferSize()));
     }
 
-    public Properties getProperties() {
+    public AhbmJobSettings getSettings() {
         validateConfig();
 
-        properties.setProperty("ahbm.against.existing", againstExisting.isSelected() ? "true" : "false");
-        properties.setProperty("ahbm.skip.known.good", skipKnownGood.isSelected() ? "true" : "false");
-        properties.setProperty("ahbm.max.file.size", maxFileSize.getText());
-        properties.setProperty("read.buffer.size", readBufferSize.getText());
-
-        return properties;
+        return new AhbmJobSettings(againstExisting.isSelected(), skipKnownGood.isSelected(),
+                Integer.parseInt(maxFileSize.getText()), Integer.parseInt(readBufferSize.getText()));
     }
 
     private void validateConfig() {
         int mfs = Integer.parseInt(maxFileSize.getText());
         int bs = Integer.parseInt(readBufferSize.getText());
 
-        if (mfs <= 0) {
-            throw new IllegalArgumentException("Max file size must be more than 0");
+        if (mfs < 0) {
+            throw new IllegalArgumentException("Max file size cannot be negative");
         }
         if (bs <= 0) {
             throw new IllegalArgumentException("Buffer size must be more than 0");

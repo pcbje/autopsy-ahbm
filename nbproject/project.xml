@@ -92,8 +92,8 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>9</release-version>
-                        <specification-version>7.0.9</specification-version>
+                        <release-version>10</release-version>
+                        <specification-version>10.2.13</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
@@ -108,20 +108,16 @@
             </test-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/mockito-all-1.9.5.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/mockito-all-1.9.5.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/gexf4j-0.4.4-BETA.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/gexf4j-0.4.4-BETA.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/junit-4.10.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/junit-4.10.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/guava-11.0.2.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/guava-11.0.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/mockito-all-1.9.5.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/mockito-all-1.9.5.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

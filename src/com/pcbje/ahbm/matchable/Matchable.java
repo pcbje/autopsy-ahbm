@@ -13,6 +13,7 @@
  */
 package com.pcbje.ahbm.matchable;
 
+import com.pcbje.ahbm.AhbmIngestModule;
 import com.pcbje.ahbm.CaseWrapper;
 import com.pcbje.ahbm.SdbfSet;
 import java.beans.PropertyChangeListener;
@@ -48,8 +49,8 @@ public class Matchable {
     private boolean expanded;
 
     static {
-        caseWrapper = new CaseWrapper();
-        sdbfSet = new SdbfSet();
+        caseWrapper = new CaseWrapper(AhbmIngestModule.getSettings());
+        sdbfSet = new SdbfSet(AhbmIngestModule.getSettings());
     }
 
     public Matchable(String filename, Content content) {

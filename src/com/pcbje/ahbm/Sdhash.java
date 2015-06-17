@@ -32,11 +32,11 @@ import org.sleuthkit.datamodel.TskCoreException;
 public class Sdhash {
 
     private CaseWrapper caseWrapper;
-    private Properties props;
+    private AhbmJobSettings props;
     private int bufferSize;
 
-    public Sdhash() {
-        caseWrapper = new CaseWrapper();
+    public Sdhash(AhbmJobSettings settings) {
+        caseWrapper = new CaseWrapper(settings);
     }
 
     public void setCaseWrapper(CaseWrapper caseWrapper) {
@@ -45,9 +45,8 @@ public class Sdhash {
 
     public String generateSdbf(Matchable probe) throws IOException, TskCoreException {
         if (props == null) {
-            props = caseWrapper.getProperties();
-
-            bufferSize = Integer.parseInt(props.getProperty("read.buffer.size"));
+            props = caseWrapper.getSettings();
+            bufferSize = props.getReadBufferSize();
         }
 
         File tmp = File.createTempFile("ahbm", "probe");

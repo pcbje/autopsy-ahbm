@@ -13,6 +13,7 @@
  */
 package com.pcbje.ahbm.matchable;
 
+import com.pcbje.ahbm.AhbmIngestModule;
 import com.pcbje.ahbm.SdbfSet;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,7 @@ public final class MatchSelected implements ActionListener {
 
     public MatchSelected() {
         handler = new MatchableHandler();
-        sdbfSet = new SdbfSet();
+        sdbfSet = new SdbfSet(AhbmIngestModule.getSettings());
     }
 
     @Override

@@ -13,6 +13,7 @@
  */
 package com.pcbje.ahbm.matchable;
 
+import com.pcbje.ahbm.AhbmIngestModule;
 import com.pcbje.ahbm.CaseWrapper;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
@@ -32,7 +33,7 @@ public class MatchableHandler {
     private MatchableViewer drawer;
 
     public MatchableHandler() {
-        caseWrapper = new CaseWrapper();
+        caseWrapper = new CaseWrapper(AhbmIngestModule.getSettings());
         drawer = (MatchableViewer) WindowManager.getDefault().findTopComponent("MatchViewer");
     }
 

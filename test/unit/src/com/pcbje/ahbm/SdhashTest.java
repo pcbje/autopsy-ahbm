@@ -41,7 +41,7 @@ public class SdhashTest {
 
     @Before
     public void setup() {
-        sdhash = new Sdhash();
+        sdhash = new Sdhash(new AhbmJobSettings());
 
         caseWrapper = mock(CaseWrapper.class);
 
@@ -63,11 +63,9 @@ public class SdhashTest {
 
         File file = new File(getClass().getClassLoader().getResource("dummy.txt").getPath());
 
-        Properties props = new Properties();
-        props.setProperty("ahbm.max.file.size", Long.toString(file.length()));
-        props.setProperty("read.buffer.size", Long.toString(file.length()));
-
-        when(caseWrapper.getProperties()).thenReturn(props);
+        AhbmJobSettings settings = new AhbmJobSettings(false, false, (int) file.length(), (int) file.length());
+       
+        when(caseWrapper.getSettings()).thenReturn(settings);
 
         sdhash.setBufferSize((int) file.length());
 
